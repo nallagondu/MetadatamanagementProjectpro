@@ -1,0 +1,2 @@
+<!-- The key goal of the project is to Use a Docker Container to run a Py code which takes the Tables list as Py arguments. 
+Py code triggers a Databricks job & takes the List of Tables as arguments. Once the Tables are replicated in ADB an email is triggered to the user. Post replication, There are class & objects created in Python Spark to validate the replicated Dataset. Apache Atlas module gives the details about the Table & columns. All the code is also scripted in Terraform for keeping the entire project cloud agnoistic. -->
