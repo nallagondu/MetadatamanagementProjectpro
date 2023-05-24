@@ -1,4 +1,4 @@
-# Databricks notebook source
+# Databricks notebook source 
 from delta.tables import *
 from pyspark.sql.functions import *
 
