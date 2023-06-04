@@ -1,5 +1,5 @@
 {
-	'table':'supplier',
-	'Primary_key':'s_suppkey'
+	table:supplier,
+	Primary_key:s_suppkey
 	}
 	
