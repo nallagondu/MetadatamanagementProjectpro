@@ -1,4 +1,9 @@
 # Databricks notebook source
+#pip install databricks_api
+
+# COMMAND ----------
+
+# Databricks notebook source
 
 #pip install databricks_api
 # COMMAND ----------
@@ -9,7 +14,7 @@ from databricks_api import DatabricksAPI
 import sys
 import ast
 
-def databricks_post_request(API_Databricks_arg1):
+def databricks_post_request(API_Databricks_arg1="['customer']"):
 
     token = 'dapi6ece060aa5520b2a7d3a86c3dd479941-3'
     db = DatabricksAPI(
@@ -21,7 +26,7 @@ def databricks_post_request(API_Databricks_arg1):
         "existing_cluster_id": '0423-212957-vl2qhpwd',
         "notebook_task":
             {
-                "notebook_path": '/Shared/MetaDatarepliaction_Backend_Code/Base_code_replication',
+                "notebook_path": '/Shared/MetaDatarepliaction_Backend_Code/Modular_Replication_Code',
                 "base_parameters": {"list1": API_Databricks_arg1}
 
             }
@@ -36,7 +41,7 @@ def databricks_post_request(API_Databricks_arg1):
 
 if __name__=="__main__":
     API_Databricks_arg1 = ast.literal_eval(sys.argv[1])
-    databricks_post_request(str(API_Databricks_arg1))
+
 
 
 
