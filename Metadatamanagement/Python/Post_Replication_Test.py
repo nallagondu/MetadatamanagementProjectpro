@@ -106,3 +106,8 @@ class sql_server:
 # x = requests.post(url, json = myobj)
 
 # print(x.text)
+
+# COMMAND ----------
+
+# MAGIC %fs
+# MAGIC ls /mnt/input
