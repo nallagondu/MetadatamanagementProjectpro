@@ -19,6 +19,11 @@ for i in dbutils.fs.ls('dbfs:/databricks-datasets/tpch/delta-001/'):
 
 # COMMAND ----------
 
+csv_tables_list_dict={}
+
+
+# COMMAND ----------
+
 def delta_file_replication(tab_name,delta_files_list_dict):
     delta_tables_list={}
     try:
@@ -97,8 +102,8 @@ def sqlserver_replication(tab_name):
 
 # COMMAND ----------
 
-def  csv_replication():
-    delta_tables_list={}
+def  csv_replication(file_name):
+    csv_tables_list={}
     try:
         (dbutils.fs.ls('/mnt/replication/replication_folder_delta_tables/'+tab_name))
         full_load=False
