@@ -97,6 +97,35 @@ def sqlserver_replication(tab_name):
 
 # COMMAND ----------
 
+def  csv_replication():
+    delta_tables_list={}
+    try:
+        (dbutils.fs.ls('/mnt/replication/replication_folder_delta_tables/'+tab_name))
+        full_load=False
+    except:
+        full_load=True
+    if tab_name in delta_files_list_dict and not full_load:
+            deltaTable = DeltaTable.forPath(spark, '/mnt/replication/replication_folder_delta_tables/'+tab_name)
+            df1=spark.read.load(delta_files_list_dict[tab_name])
+            with open('/Workspace/Repos/rohith@azuredezyre.onmicrosoft.com/Metadatamanagement_Projectpro/Metadatamanagement/SourceDefinitionFiles/Delta_Lake/'+tab_name+'.json', 'r') as f:
+                data = json.load(f)
+            cond='target.'+data['Primary_key']+ '='+ 'updates.'+data['Primary_key']
+            deltaTable.alias('target').merge(df1.alias('updates'),cond).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+           
+    elif tab_name in delta_files_list_dict and  full_load:
+        #print("Full load completed")
+        df1=spark.read.load(delta_files_list_dict[tab_name])
+        df1.write.save("/mnt/replication/replication_folder_delta_tables/"+tab_name)
+        
+
+            
+
+    else:
+        print("No table ",tab_name," found with the path mentioned, Please recheck the list mentioned")
+
+
+# COMMAND ----------
+
 for i in eval(input):
     print(i)
     if i['source_type']=="dbfs_delta_Table":
@@ -109,12 +138,9 @@ for i in eval(input):
 
 # COMMAND ----------
 
-d1=deltatable_test("Customer")
+# MAGIC %fs
+# MAGIC ls dbfs:/mnt/input/Input_CSV/
 
 # COMMAND ----------
 
-d1.count_test()
-
-# COMMAND ----------
-
-d1.pk_join()
+spark.read.option("header",True).csv("dbfs:/mnt/input/Input_CSV/cereal.csv").display()

@@ -1,5 +1,6 @@
 # Databricks notebook source
 import json
+import requests
 
 # COMMAND ----------
 
@@ -92,3 +93,16 @@ class sql_server:
 
         
     
+
+# COMMAND ----------
+
+# url = 'https://metadatamanagementemail.azurewebsites.net:443/api/sample_email/triggers/When_a_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=Lz1K7ZusrhyeY1lxp9zV12sPUJUEHxlHVH1HTwL0MMA'
+# myobj = {
+#     "emailaddress":"<>",
+#     "body":"triggered from python Databricks",
+#     "subject":"sample"
+# }
+
+# x = requests.post(url, json = myobj)
+
+# print(x.text)
