@@ -6,7 +6,7 @@ import json
 
 # COMMAND ----------
 
-dbutils.widgets.text('user_input', "[{'source_type':'dbfs_delta_Table','table_name':'Customer'},{'source_type':'sql_server','table_name':'dbo.Employee'}]")
+dbutils.widgets.text('user_input', "[{'source_type':'csv','table_name':'Orders'}]")
 input=dbutils.widgets.get("user_input")
 #dbutils.widgets.removeAll()
 
@@ -20,7 +20,9 @@ for i in dbutils.fs.ls('dbfs:/databricks-datasets/tpch/delta-001/'):
 # COMMAND ----------
 
 csv_tables_list_dict={}
-
+for i in dbutils.fs.ls('dbfs:/mnt/input/Input_CSV/'):
+    if i.size !=0:
+        csv_tables_list_dict[i.name[:-4].capitalize()]=i.path
 
 # COMMAND ----------
 
@@ -102,31 +104,30 @@ def sqlserver_replication(tab_name):
 
 # COMMAND ----------
 
-def  csv_replication(file_name):
-    csv_tables_list={}
+def  csv_replication(file_name,csv_tables_list_dict):
     try:
-        (dbutils.fs.ls('/mnt/replication/replication_folder_delta_tables/'+tab_name))
+        (dbutils.fs.ls('/mnt/replication/replication_folder_csv_tables/'+file_name))
         full_load=False
     except:
         full_load=True
-    if tab_name in delta_files_list_dict and not full_load:
-            deltaTable = DeltaTable.forPath(spark, '/mnt/replication/replication_folder_delta_tables/'+tab_name)
-            df1=spark.read.load(delta_files_list_dict[tab_name])
-            with open('/Workspace/Repos/rohith@azuredezyre.onmicrosoft.com/Metadatamanagement_Projectpro/Metadatamanagement/SourceDefinitionFiles/Delta_Lake/'+tab_name+'.json', 'r') as f:
+    if file_name in csv_tables_list_dict and not full_load:
+            deltaTable = DeltaTable.forPath(spark, '/mnt/replication/replication_folder_csv_tables/'+file_name)
+            df1=spark.read.option("header",True).option("inferschema",True).load(csv_tables_list_dict[file_name])
+            with open('/Workspace/Repos/rohith@azuredezyre.onmicrosoft.com/Metadatamanagement_Projectpro/Metadatamanagement/SourceDefinitionFiles/CSV/'+file_name+'.json', 'r') as f:
                 data = json.load(f)
             cond='target.'+data['Primary_key']+ '='+ 'updates.'+data['Primary_key']
             deltaTable.alias('target').merge(df1.alias('updates'),cond).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
            
-    elif tab_name in delta_files_list_dict and  full_load:
+    elif file_name in csv_tables_list_dict and  full_load:
         #print("Full load completed")
-        df1=spark.read.load(delta_files_list_dict[tab_name])
-        df1.write.save("/mnt/replication/replication_folder_delta_tables/"+tab_name)
+        df1=spark.read.option("inferschema",True).option("header",True).csv(csv_tables_list_dict[file_name])
+        df1.write.save("/mnt/replication/replication_folder_csv_tables/"+file_name)
         
 
             
 
     else:
-        print("No table ",tab_name," found with the path mentioned, Please recheck the list mentioned")
+        print("No table ",file_name," found with the path mentioned, Please recheck the list mentioned")
 
 
 # COMMAND ----------
@@ -139,13 +140,9 @@ for i in eval(input):
     elif i['source_type']=="sql_server":
         sqlserver_replication(i["table_name"])
     elif i['source_type']=="csv":
-        csv_replication(i["table_name"])
+        csv_replication(i["table_name"],csv_tables_list_dict)
 
 # COMMAND ----------
 
 # MAGIC %fs
 # MAGIC ls dbfs:/mnt/input/Input_CSV/
-
-# COMMAND ----------
-
-spark.read.option("header",True).csv("dbfs:/mnt/input/Input_CSV/cereal.csv").display()
